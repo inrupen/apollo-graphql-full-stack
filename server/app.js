@@ -1,39 +1,43 @@
-const { ApolloServer, gql } = require('apollo-server')
-const axios = require('axios')
+const { ApolloServer, gql } = require('apollo-server');
+const axios = require('axios');
 
 const typeDefs = gql`
-    type User {
-        id: ID
-        login: String
-        avatar_url: String
-    }
+  type User {
+    id: ID
+    login: String
+    avatar_url: String
+  }
 
-    type Query {
-        users: [User]
-    }
-`
+  type Query {
+    users: [User]
+  }
+`;
 
 const resolvers = {
-    Query: {
-        users: async () => {
-            try {
-                const users = await axios.get('https://api.github.com/users')
-                console.log("users.data", users.data)
-                return users.data.map(({ id, login, avatar_url }) => ({
-                    id,
-                    login,
-                    avatar_url 
-                }))
-            } catch (error) {
-                throw error
-            }
-        },
+  Query: {
+    users: async () => {
+      try {
+        const users = await axios.get('https://api.github.com/users');
+        console.log('users.data', users.data);
+        return users.data.map(({ id, login, avatar_url }) => ({
+          id,
+          login,
+          avatar_url,
+        }));
+      } catch (error) {
+        throw error;
+      }
     },
-}
+  },
+};
 
 const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-})
+  typeDefs,
+  resolvers,
+  context: ({ req : {headers} }) => {
+    console.log({headers});
+    if (!headers || !headers.authorization) throw new Error('No auth!!!!')
+  },
+});
 
-server.listen().then(({ url }) => console.log(`Server ready at ${url}`))
+server.listen().then(({ url }) => console.log(`Server ready at ${url}`));
