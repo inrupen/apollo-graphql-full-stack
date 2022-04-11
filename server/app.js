@@ -34,6 +34,7 @@ const resolvers = {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  introspection: true,
   context: ({ req : {headers} }) => {
     console.log({headers});
     if (!headers || !headers.authorization) throw new Error('No auth!!!!')
